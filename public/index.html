@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>XDA SP | Annonymous Posting</title>
   </head>
   <body>
     <h1>XDA Anonymous Posting</h1>
@@ -16,10 +16,16 @@
     </form>
     <hr />
     <h2>Track your request</h2>
-    <label
-      >Track your Post: <input type="text" placeholder="Enter Post Id" /></label
-    ><button>Track</button>
-    <p>You can track your post if approved or rejected with feedback.</p>
+    <form action="/track" method="post">
+      <label
+        >Track your Post:
+        <input
+          type="text"
+          placeholder="Enter Post Id"
+          name="trackingId" /></label
+      ><button>Track</button>
+    </form>
+    <p>You can track your post if approved or declined.</p>
     <footer>XDA SHIT POSTING INC.</footer>
   </body>
 </html>

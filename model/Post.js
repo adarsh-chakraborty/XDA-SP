@@ -11,7 +11,8 @@ const PostSchema = new Schema(
     },
     trackingId: {
       type: String,
-      required: true
+      required: true,
+      index: true
     },
     status: {
       type: String,
