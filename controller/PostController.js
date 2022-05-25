@@ -156,35 +156,54 @@ const postTrack = async (req, res, next) => {
 };
 
 async function postToFacebook(post) {
+  console.log('PUPETEER:', 'Initializing');
   try {
     const browser = await puppeteer.launch({
       headless: true,
       args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
     const page = await browser.newPage();
+    console.log('PUPETEER:', 'Opened new page, visiting login');
     await page.goto('https://www.facebook.com/login', {
       waitUntil: 'networkidle0'
     });
     await page.waitForTimeout(1000);
+    console.log('PUPETEER:', 'Typing Email');
     await page.type('#email', 'beginningonix@gmail.com', {
       delay: 20
     });
+    console.log('PUPETEER:', 'Typing password');
     await page.type('#pass', process.env.password, {
       delay: 10
     });
+    console.log('PUPETEER:', 'Trying to login');
+
     await page.click('#loginbutton');
     await page.waitForTimeout(3000);
+    console.log('PUPETEER:', 'Logged in, redirecting to XDA SP');
+
     await page.goto('https://mbasic.facebook.com/groups/1622367768119037/', {
       waitUntil: 'networkidle0'
     });
+
     await page.waitForTimeout(5000);
-    await page.click('textarea[aria-label="Write a post."]');
+    // console.log('PUPETEER:', 'Clicking on Write a post');
+    // await page.click('textarea[aria-label="Write a post."]');
+    console.log('PUPETEER:', 'Typing post text');
+
     await page.type(`textarea[aria-label="Write a post."]`, post.text);
+    console.log('PUPETEER:', 'Posting....');
+
     await page.click('input[value="Post"]');
     await page.waitForTimeout(5000);
+    console.log('PUPETEER:', 'Posted. Closing Browser');
+
     await browser.close();
+    console.log('PUPETEER:', 'Browser closed, Saving post status');
+
     post.status = 'Posted';
     await post.save();
+    console.log('PUPETEER:', 'Post status changed to Posted, End.');
   } catch (err) {
     console.log(err);
   }
