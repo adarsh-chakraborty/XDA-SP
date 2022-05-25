@@ -42,7 +42,7 @@ const postCreate = async (req, res, next) => {
         <h2>Your post has been submitted for approval!</h2>
         <hr />
         <img src="https://c.tenor.com/4otr5S3l1agAAAAj/dancing-duckdancing.gif" alt="">
-        <h3>You can use this Tracking ID: <span style="font-weight: 800;">${postTrackingId}</span>, to track the status of your post :)</h3>
+        <h3>You can use this Tracking ID: <strong>${postTrackingId}</strong> to track the status of your post :)</h3>
         <br><br><br><br><br>
         <hr />
         <p>&copy 2022. XDA SHIT POSTING INC</p>
@@ -162,6 +162,7 @@ async function postToFacebook(post) {
       args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
     const page = await browser.newPage();
+    await page.setDefaultNavigationTimeout(0);
     await page.goto('https://www.facebook.com/login');
     await page.waitForTimeout(1000);
     await page.type('#email', 'beginningonix@gmail.com', {
