@@ -70,7 +70,10 @@ const postTrack = (req, res, next) => {};
 
 async function postToFacebook(post) {
   try {
-    const browser = await puppeteer.launch({ headless: true });
+    const browser = await puppeteer.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
     const page = await browser.newPage();
     await page.goto('https://www.facebook.com/login');
     await page.waitForTimeout(1000);
