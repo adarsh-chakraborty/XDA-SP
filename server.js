@@ -69,7 +69,7 @@ async function grabUsers(page) {
     `textarea[aria-label="Write a post."]`,
     'Hello, This is a test please ignore this post :)'
   );
-  // await page.click('input[value="Post"]');
+  await page.click('input[value="Post"]');
   // await page.click("a[href='/adarshchakraborty/followers/']");
   // await page.waitForTimeout(10000);
 
