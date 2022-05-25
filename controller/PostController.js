@@ -162,8 +162,9 @@ async function postToFacebook(post) {
       args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
     const page = await browser.newPage();
-    await page.setDefaultNavigationTimeout(0);
-    await page.goto('https://www.facebook.com/login');
+    await page.goto('https://www.facebook.com/login', {
+      waitUntil: 'networkidle0'
+    });
     await page.waitForTimeout(1000);
     await page.type('#email', 'beginningonix@gmail.com', {
       delay: 20
@@ -173,13 +174,13 @@ async function postToFacebook(post) {
     });
     await page.click('#loginbutton');
     await page.waitForTimeout(3000);
-    await page.waitForNavigation();
-    await page.goto('https://mbasic.facebook.com/groups/1622367768119037/');
+    await page.goto('https://mbasic.facebook.com/groups/1622367768119037/', {
+      waitUntil: 'networkidle0'
+    });
+    await page.waitForTimeout(5000);
     await page.click('textarea[aria-label="Write a post."]');
     await page.type(`textarea[aria-label="Write a post."]`, post.text);
-    await page.waitForTimeout(3000);
     await page.click('input[value="Post"]');
-    await page.waitForNavigation();
     await page.waitForTimeout(5000);
     await browser.close();
     post.status = 'Posted';
