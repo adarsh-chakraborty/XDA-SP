@@ -193,6 +193,9 @@ async function postToFacebook(approvedPosts) {
     args: ['--no-sandbox', '--disable-setuid-sandbox']
   });
   const page = await browser.newPage();
+  page.setUserAgent(
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36'
+  );
   page.setCacheEnabled(false);
   try {
     await page.screenshot({ path: './public/1.png', fullPage: true });
