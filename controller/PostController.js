@@ -156,39 +156,43 @@ const postTrack = async (req, res, next) => {
 };
 
 async function postToFacebook(post) {
-  console.log('PUPETEER:', 'Initializing');
+  console.log('PUPETEER:', '1. Initializing');
   try {
     const browser = await puppeteer.launch({
       headless: true,
       args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
     const page = await browser.newPage();
-    console.log('PUPETEER:', 'Opened new page, visiting login');
-    await page.goto('https://www.facebook.com/login', {
-      waitUntil: 'networkidle0'
-    });
+    await page.screenshot({ path: './public/1.png', fullPage: true });
+    console.log('PUPETEER:', '2. Opened new page, visiting login');
+    await page.goto('https://mbasic.facebook.com/login');
+    await page.screenshot({ path: './public/2.png', fullPage: true });
+
     await page.waitForTimeout(1000);
-    console.log('PUPETEER:', 'Typing Email');
-    await page.type('#email', 'beginningonix@gmail.com', {
+    console.log('PUPETEER:', '3. Typing Email');
+    await page.type(`input[name="email"]`, 'beginningonix@gmail.com', {
       delay: 20
     });
-    console.log('PUPETEER:', 'Typing password');
-    await page.type('#pass', process.env.password, {
+    console.log('PUPETEER:', '3. Typing password');
+    await page.type(`input[name="pass"]`, process.env.password, {
       delay: 10
     });
-    console.log('PUPETEER:', 'Trying to login');
+    await page.screenshot({ path: './public/3.png', fullPage: true });
 
-    await page.click('#loginbutton');
-    await page.waitForTimeout(3000);
-    console.log('PUPETEER:', 'Logged in, redirecting to XDA SP');
-
-    await page.goto('https://mbasic.facebook.com/groups/1622367768119037/');
-
+    console.log('PUPETEER:', '4. Clicking on login button');
+    await page.click(`input[name="login"]`);
     await page.waitForTimeout(5000);
+    await page.screenshot({ path: './public/4.png', fullPage: true });
+
+    console.log('PUPETEER:', '5. Logged in, redirecting to XDA SP');
+    await page.goto('https://mbasic.facebook.com/groups/1622367768119037/');
+    await page.waitForTimeout(5000);
+    await page.screenshot({ path: './public/5.png', fullPage: true });
+
     // console.log('PUPETEER:', 'Clicking on Write a post');
     // await page.click('textarea[aria-label="Write a post."]');
-    console.log('PUPETEER:', 'Typing post text');
-    await page.screenshot({ path: './public/example.png', fullPage: true });
+    console.log('PUPETEER:', '6. Typing post text');
+    await page.screenshot({ path: './public/6.png', fullPage: true });
 
     const next = await page.waitForSelector(
       'textarea[aria-label="Write a post."]'
@@ -196,12 +200,13 @@ async function postToFacebook(post) {
     await next.click();
 
     await next.type(post.text, { delay: 10 });
-    console.log('PUPETEER:', 'Posting....');
+    console.log('PUPETEER:', '7. Posting....');
+    await page.screenshot({ path: './public/7.png', fullPage: true });
 
     await page.click('input[value="Post"]');
     await page.waitForTimeout(5000);
-    console.log('PUPETEER:', 'Posted. Closing Browser');
-
+    console.log('PUPETEER:', '8. Posted. Closing Browser');
+    await page.screenshot({ path: './public/8.png', fullPage: true });
     await browser.close();
     console.log('PUPETEER:', 'Browser closed, Saving post status');
 
