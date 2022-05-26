@@ -88,11 +88,15 @@ const postservice = async (req, res, next) => {
       post.status = 'Approved';
       await post.save();
       return res.status(202).json({
-        message:
-          'The Post has been approved.\n Type !post to post all approved post to group. (max 10) to facebook.'
+        message: 'The Post has been approved.'
       });
     }
     case 'Decline': {
+      if (post.status === 'Posted') {
+        return res
+          .status(409)
+          .json({ error: 'That post is already posted to facebook.' });
+      }
       post.status = 'Declined';
       await post.save();
       return res.status(202).json({ message: 'The Post has been declined.' });
@@ -177,7 +181,7 @@ const postApproved = async (req, res, next) => {
   res.send(`${approvedPosts?.length} posts will be posted to XDA SP.`);
   if (approvedPosts?.length > 0) {
     isPosting = true;
-    postToFacebook();
+    postToFacebook(approvedPosts);
   }
 };
 
