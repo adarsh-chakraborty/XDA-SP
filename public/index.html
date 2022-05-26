@@ -11,7 +11,7 @@
     <p>Fill the form to submit your anonymous post.</p>
 
     <form action="/post" method="post">
-      <textarea name="post" placeholder="Write a post..."> </textarea>
+      <textarea name="post" placeholder="Write a post..." required> </textarea>
       <button>Post</button>
     </form>
     <hr />
@@ -22,7 +22,8 @@
         <input
           type="text"
           placeholder="Enter Post Id"
-          name="trackingId" /></label
+          name="trackingId"
+          required /></label
       ><button>Track</button>
     </form>
     <p>You can track your post if approved or declined.</p>

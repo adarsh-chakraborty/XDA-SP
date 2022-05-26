@@ -17,7 +17,8 @@ const PostSchema = new Schema(
     status: {
       type: String,
       requied: true,
-      default: 'Pending approval'
+      default: 'Pending approval',
+      index: true
     },
     feedback: {
       type: String

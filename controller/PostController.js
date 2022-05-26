@@ -3,6 +3,8 @@ const Post = require('../model/Post');
 const { nanoid } = require('nanoid');
 const axios = require('axios').default;
 
+let isPosting = false;
+
 const BotURL = process.env.HEROKU
   ? 'http://doge-boot.herokuapp.com'
   : 'http://localhost:3000';
@@ -65,7 +67,7 @@ const postCreate = async (req, res, next) => {
 const postservice = async (req, res, next) => {
   const { token, response, service } = req.body;
   if (token !== 'SUPERDOGE1234') {
-    return res.status(401).json({ error: 'Unautorized' });
+    return res.status(401).json({ error: 'Unauthorized' });
   }
   if (!response || !service) {
     return res.status(400).json({ error: 'Response Service required.' });
@@ -81,8 +83,10 @@ const postservice = async (req, res, next) => {
     case 'Approve': {
       post.status = 'Approved';
       await post.save();
-      postToFacebook(post);
-      return res.status(202).json({ message: 'The Post has been approved.' });
+      return res.status(202).json({
+        message:
+          'The Post has been approved.\n Type !post to post all approved post to group. (max 10) to facebook.'
+      });
     }
     case 'Decline': {
       post.status = 'Declined';
@@ -155,19 +159,37 @@ const postTrack = async (req, res, next) => {
   `);
 };
 
-async function postToFacebook(post) {
+const postApproved = async (req, res, next) => {
+  const { token } = req.body;
+  if (token !== 'SUPERDOGE1234') {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  if (isPosting) {
+    return res.status(409).json({
+      error: 'There is already posting process going on, try again later.'
+    });
+  }
+  const approvedPosts = await Post.find({ status: 'Approved' }).limit(10);
+  res.send(`${approvedPosts?.length} posts will be posted to XDA SP.`);
+  if (approvedPosts?.length > 0) {
+    isPosting = true;
+    postToFacebook();
+  }
+};
+
+async function postToFacebook(approvedPosts) {
+  console.log(approvedPosts);
   console.log('PUPETEER:', '1. Initializing');
   const browser = await puppeteer.launch({
-    headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
+    headless: false
   });
   const page = await browser.newPage();
+  page.setCacheEnabled(false);
   try {
     await page.screenshot({ path: './public/1.png', fullPage: true });
     console.log('PUPETEER:', '2. Opened new page, visiting login');
     await page.goto('https://mbasic.facebook.com/login');
     await page.screenshot({ path: './public/2.png', fullPage: true });
-
     await page.waitForTimeout(1000);
     console.log('PUPETEER:', '3. Typing Email');
     await page.type(`input[name="email"]`, 'beginningonix@gmail.com', {
@@ -181,41 +203,47 @@ async function postToFacebook(post) {
 
     console.log('PUPETEER:', '4. Clicking on login button');
     await page.click(`input[name="login"]`);
-    await page.waitForTimeout(5000);
+
+    await page.waitForTimeout(15000);
     await page.screenshot({ path: './public/4.png', fullPage: true });
 
     console.log('PUPETEER:', '5. Logged in, redirecting to XDA SP');
-    await page.goto('https://mbasic.facebook.com/groups/1622367768119037/');
-    await page.waitForTimeout(5000);
-    await page.screenshot({ path: './public/5.png', fullPage: true });
+
+    // Repeatative Task //
+    for (post of approvedPosts) {
+      await page.waitForTimeout(5000);
+      await page.goto('https://mbasic.facebook.com/groups/1622367768119037/');
+      await page.waitForTimeout(5000);
+      await page.screenshot({ path: './public/5.png', fullPage: true });
+      console.log('PUPETEER:', '6. Typing post text');
+      await page.screenshot({ path: './public/6.png', fullPage: true });
+      const next = await page.waitForSelector(
+        'textarea[aria-label="Write a post."]'
+      );
+      await next.click();
+      await next.type(post.text, { delay: 10 });
+      console.log('PUPETEER:', '7. Posting....');
+      await page.screenshot({ path: './public/7.png', fullPage: true });
+
+      await page.click('input[value="Post"]');
+      post.status = 'Posted';
+      await post.save();
+      await page.waitForTimeout(5000);
+    }
 
     // console.log('PUPETEER:', 'Clicking on Write a post');
     // await page.click('textarea[aria-label="Write a post."]');
-    console.log('PUPETEER:', '6. Typing post text');
-    await page.screenshot({ path: './public/6.png', fullPage: true });
 
-    const next = await page.waitForSelector(
-      'textarea[aria-label="Write a post."]'
-    );
-    await next.click();
-
-    await next.type(post.text, { delay: 10 });
-    console.log('PUPETEER:', '7. Posting....');
-    await page.screenshot({ path: './public/7.png', fullPage: true });
-
-    await page.click('input[value="Post"]');
-    await page.waitForTimeout(5000);
     console.log('PUPETEER:', '8. Posted. Closing Browser');
     await page.screenshot({ path: './public/8.png', fullPage: true });
     await browser.close();
-    console.log('PUPETEER:', 'Browser closed, Saving post status');
-    post.status = 'Posted';
-    await post.save();
-    console.log('PUPETEER:', 'Post status changed to Posted, End.');
+    console.log('PUPETEER:', 'Browser closed, All done');
+    isPosting = false;
   } catch (err) {
     await browser.close();
     console.log(err);
+    isPosting = false;
   }
 }
 
-module.exports = { postCreate, postTrack, postservice };
+module.exports = { postCreate, postTrack, postservice, postApproved };
