@@ -182,16 +182,20 @@ async function postToFacebook(post) {
     await page.waitForTimeout(3000);
     console.log('PUPETEER:', 'Logged in, redirecting to XDA SP');
 
-    await page.goto('https://mbasic.facebook.com/groups/1622367768119037/', {
-      waitUntil: 'networkidle0'
-    });
+    await page.goto('https://mbasic.facebook.com/groups/1622367768119037/');
 
     await page.waitForTimeout(5000);
     // console.log('PUPETEER:', 'Clicking on Write a post');
     // await page.click('textarea[aria-label="Write a post."]');
     console.log('PUPETEER:', 'Typing post text');
+    await page.screenshot({ path: './public/example.png', fullPage: true });
 
-    await page.type(`textarea[aria-label="Write a post."]`, post.text);
+    const next = await page.waitForSelector(
+      'textarea[aria-label="Write a post."]'
+    );
+    await next.click();
+
+    await next.type(post.text, { delay: 10 });
     console.log('PUPETEER:', 'Posting....');
 
     await page.click('input[value="Post"]');
