@@ -157,12 +157,12 @@ const postTrack = async (req, res, next) => {
 
 async function postToFacebook(post) {
   console.log('PUPETEER:', '1. Initializing');
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox']
+  });
+  const page = await browser.newPage();
   try {
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
-    const page = await browser.newPage();
     await page.screenshot({ path: './public/1.png', fullPage: true });
     console.log('PUPETEER:', '2. Opened new page, visiting login');
     await page.goto('https://mbasic.facebook.com/login');
@@ -209,11 +209,11 @@ async function postToFacebook(post) {
     await page.screenshot({ path: './public/8.png', fullPage: true });
     await browser.close();
     console.log('PUPETEER:', 'Browser closed, Saving post status');
-
     post.status = 'Posted';
     await post.save();
     console.log('PUPETEER:', 'Post status changed to Posted, End.');
   } catch (err) {
+    await browser.close();
     console.log(err);
   }
 }
