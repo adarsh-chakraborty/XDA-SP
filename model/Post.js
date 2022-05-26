@@ -20,7 +20,7 @@ const PostSchema = new Schema(
       default: 'Pending approval',
       index: true
     },
-    feedback: {
+    ip: {
       type: String
     }
   },

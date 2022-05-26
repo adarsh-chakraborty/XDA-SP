@@ -17,7 +17,11 @@ const postCreate = async (req, res, next) => {
   }
 
   const postTrackingId = nanoid();
-  const data = await Post.create({ text: post, trackingId: postTrackingId });
+  const data = await Post.create({
+    text: post,
+    trackingId: postTrackingId,
+    ip: req.ip
+  });
   console.log(data);
   res.status(404).send(`
     <!DOCTYPE html>
@@ -181,7 +185,8 @@ async function postToFacebook(approvedPosts) {
   console.log(approvedPosts);
   console.log('PUPETEER:', '1. Initializing');
   const browser = await puppeteer.launch({
-    headless: false
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox']
   });
   const page = await browser.newPage();
   page.setCacheEnabled(false);
